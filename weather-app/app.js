@@ -1,9 +1,22 @@
 const request = require('request')
+const code = require('./geo_code.js')
+const cast = require('./forecast.js')
 
 
-const URL = "https://api.darksky.net/forecast/600d550d714baa516f318ed17f591f3e/37.8267,-122.4233";
+code.geoCode(process.argv[2], (error, data) => {   
+    if(error) {
+        console.log(error);
+        return error;
+    } 
+    cast.forecast(data,(error, response ) => {
+        if(error) {
+                console.log(error);
+        } else {
+                console.log(response.currently);
+                console.log('The current temprature is '+ response.currently.temperature);
+        }
 
-request({url:URL}, (error,response) => {
-    const body = JSON.parse(response.body)
-    console.log(response);
+    });
 })
+
+console.log('End of the file');
