@@ -4,6 +4,9 @@ const cast = require('./forecast.js')
 
 
 code.geoCode(process.argv[2], (error, data) => {   
+    if(!process.argv[2]) {
+        return
+    }
     if(error) {
         console.log(error);
         return error;
