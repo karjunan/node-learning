@@ -2,18 +2,25 @@ const request = require('request')
 const code = require('./geo_code.js')
 const cast = require('./forecast.js')
 
+const input = process.argv;
 
-code.geoCode(process.argv[2], (error, data) => {   
+if(!input[2]) {
+    console.log('Enter a city....')
+    return;
+}
+
+code.geoCode(input[2], (error, data) => {   
+   
     if(error) {
         console.log(error);
         return error;
     } 
-    cast.forecast(data,(error, response ) => {
+    cast.forecast(data,(error, {currently} ) => {
         if(error) {
                 console.log(error);
         } else {
-                console.log(response.currently);
-                console.log('The current temprature is '+ response.currently.temperature);
+                const { temperature } = currently;
+                console.log('The current temprature is '+ temperature);
         }
 
     });
