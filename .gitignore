@@ -3,3 +3,5 @@ learn-process/node_modules
 weather-app/node_modules
 web-server/node_modules
 node-test/node_modules
+grpc-app/node_modules
+type_script/node_modules

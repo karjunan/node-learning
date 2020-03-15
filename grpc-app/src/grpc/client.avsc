@@ -1,0 +1,27 @@
+{
+    "name": "IntegrationRecordEventData",
+    "type": "record",
+    "namespace": "com.perso.model",
+    "fields": [
+      {
+        "name": "dateTimeOccurred",
+        "type": "string",
+        "default": "null"
+      },
+      {
+        "name": "eventSource", 
+        "type": "string",
+        "default": "null"
+      },
+      {
+        "name": "eventType",
+        "type": "string",
+        "default": "null"
+      },
+      {
+        "name": "eventId",
+        "type": "string",
+        "default": "null"
+      }
+    ]
+  }
