@@ -34,3 +34,20 @@ console.log(user)
 
 console.log(Object.keys(user))
 
+console.log(Object.is(2,3))
+
+Object.assign(person,user)
+
+console.log('Person data => ' , person)
+
+
+function constUser(fname, lname) {
+    this.fstName = fname,
+    this.lstName = lname
+}
+
+const u = new constUser('Ram','Ahuja');
+
+console.log(u)
+
+
