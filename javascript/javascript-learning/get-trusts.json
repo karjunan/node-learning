@@ -1,0 +1,70 @@
+{
+    "isSuccess": true,
+    "data": {
+        "singleClientId": "BA7690CF-0637-4E62-B47A-B8B99A9DE02B",
+        "legalOrganizationName": "Infosys Trust",
+        "tradingNames": [
+            "Infosys trust pvt ltd",
+            "Infosys technology pvt ltd"
+        ],
+        "businessIdentifiers": [
+            {
+                "identifierType": "72136C52-2AB4-490D-AADE-C266A1EF45E7",
+                "identifierDescription": "ABN",
+                "identifierValue": "889",
+                "countryOfIssueOfIdentifier": "AUS",
+                "isVerified": false
+            }
+        ],
+        "isGovernmentCompany": false,
+        "gstRegistered": true,
+        "addresses": [
+            {
+                "addressType": "8D8A9A78-3E68-4F73-823E-7FBDD48E2BA0",
+                "country": "string",
+                "state": "string",
+                "postCode": "string",
+                "suburb": "string",
+                "addressLine1": "string",
+                "addressLine2": "string",
+                "isVerified": null,
+                "addressText": null
+            }
+        ],
+        "tenantId": "761EFE10-C553-4841-AD4B-215DA2224A14",
+        "trustee":[ 
+            {
+                "id" :"232343AFDFDF",
+                "name": "Mark Waug",
+                "lastName": "Smith",
+                "dob": "1996-07-07T18:30:00.000Z",
+                "clienttype" : "individual",
+                "personalIdentifiers": [
+                    {
+                        "identifierType": "Other",
+                        "identifierDescription": "Passport",
+                        "identifierValue": "2232SDFSF",
+                        "countryOfIssueOfIdentifier": "India",
+                        "isVerified": null
+                    }]
+            },
+             {
+               "id" :"43533KKEEREER",
+                "legalOrganizationName": "32z client",
+                "clienttype" : "company",
+                "businessIdentifiers": [
+                    {
+                        "identifierType": "F79E8E1E-EA67-43D2-B307-D65C3ADB7AA9",
+                        "identifierDescription": "test",
+                        "identifierValue": "3zhh",
+                        "countryOfIssueOfIdentifier": "Aus",
+                        "isVerified": null
+                    }
+
+                ],
+                "isGovernmentCompany": false,
+                "gstRegistered": true        
+            }
+        ]
+    }
+}

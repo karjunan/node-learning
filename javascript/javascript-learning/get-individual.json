@@ -1,0 +1,104 @@
+{
+    "isSuccess": true,
+    "data": {
+      "singleClientId": "BA7690CF-0637-4E62-B47A-B8B99A9DE02B",
+      "name": "Steve",
+      "lastName": "Waugh",
+      "cientType" : "individual", 
+      "identifiers": [
+        {
+          "identifierID" : "FANG0CF-0637-4E62-B47A-B8B99A9DE02B",
+          "identifierType": "drivingLicense",
+          "identifierDescription": "",
+          "identifierValue": "ABD1231",
+          "countryOfIssueOfIdentifier": "AUS",
+          "isVerified": false
+        }
+      ],
+      "addresses": [
+        {
+          "addressId" : "8D8A9A78-3E68-4F73-823E-7FBDD48E2BA0",
+          "addressType": "primary",
+          "country": "Aus",
+          "state": "NSW",
+          "postCode": "4SDSF3",
+          "suburb": "Rhodes",
+          "addressLine1": "33 first street",
+          "addressLine2": "",
+          "isVerified": null,
+          "addressText": null
+        }
+      ],
+      "tenantId": "761EFE10-C553-4841-AD4B-215DA2224A14",
+      "trusts": [
+        {
+          "id": "43533KKEEREER",
+          "legalOrganizationName": "32z client",
+          "clienttype": "trust",
+          "businessIdentifiers": [
+            {
+              "identifierType": "ABN",
+              "identifierDescription": "",
+              "identifierValue": "234234ASDSD",
+              "countryOfIssueOfIdentifier": "Aus",
+              "isVerified": null
+            }
+          ],
+          "isGovernmentCompany": false,
+          "gstRegistered": true
+        },
+        {
+          "id": "900234ASDDAS",
+          "legalOrganizationName": "Apple Inc",
+          "clienttype": "trust",
+          "businessIdentifiers": [
+            {
+              "identifierType": "ABN",
+              "identifierDescription": "",
+              "identifierValue": "SADSDS12323",
+              "countryOfIssueOfIdentifier": "Aus",
+              "isVerified": null
+            }
+          ],
+          "isGovernmentCompany": false,
+          "gstRegistered": true
+        }
+      ],
+     "soletrader": [
+        {
+          "id": "43533KKEEREER",
+          "legalOrganizationName": "32z client",
+          "clienttype": "soletrader",
+          "businessIdentifiers": [
+            {
+              "identifierType": "ABN",
+              "identifierDescription": "",
+              "identifierValue": "234234ASDSD",
+              "countryOfIssueOfIdentifier": "Aus",
+              "isVerified": null
+            }
+          ],
+          "isGovernmentCompany": false,
+          "gstRegistered": true
+        }
+      ],
+    "partnership": [
+        {
+          "id": "43533KKEEREER",
+          "legalOrganizationName": "32z client",
+          "clienttype": "partnership",
+          "businessIdentifiers": [
+            {
+              "identifierType": "ABN",
+              "identifierDescription": "",
+              "identifierValue": "234234ASDSD",
+              "countryOfIssueOfIdentifier": "Aus",
+              "isVerified": null
+            }
+          ],
+          "isGovernmentCompany": false,
+          "gstRegistered": true
+        }
+      ]
+    }
+  }

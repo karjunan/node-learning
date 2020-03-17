@@ -1,0 +1,63 @@
+{
+  "isSuccess": true,
+  "data": {
+    "singleClientId": "BA7690CF-0637-4E62-B47A-B8B99A9DE02B",
+    "legalOrganizationName": "Abn corporation",
+    "tradingNames": ["Abn corporation ltd", "Abn corporation private ltd"],
+    "businessIdentifiers": [
+      {
+        "identifierType": "72136C52-2AB4-490D-AADE-C266A1EF45E7",
+        "identifierDescription": "ABN",
+        "identifierValue": "1235232",
+        "countryOfIssueOfIdentifier": "Australia",
+        "isVerified": false
+      }
+    ],
+    "isGovernmentCompany": false,
+    "gstRegistered": true,
+    "addresses": [
+      {
+        "addressType": "8D8A9A78-3E68-4F73-823E-7FBDD48E2BA0",
+        "country": "Au",
+        "state": "NSW",
+        "postCode": "43222",
+        "suburb": "New south wales",
+        "addressLine1": "20 Mark Street",
+        "addressLine2": "",
+        "isVerified": null,
+        "addressText": null
+      }
+    ],
+    "tenantId": "761EFE10-C553-4841-AD4B-215DA2224A14",
+    "partners": [
+      {
+        "name": "32z client",
+        "lastName": "client",
+        "dob": "1996-07-07T18:30:00.000Z",
+        "personalIdentifiers": [
+          {
+            "identifierType": "F79E8E1E-EA67-43D2-B307-D65C3ADB7AA9",
+            "identifierDescription": "ABN",
+            "identifierValue": "345342SDFS",
+            "countryOfIssueOfIdentifier": "Australia",
+            "isVerified": null
+          }
+        ],
+        "gstRegistered": null,
+        "addresses": [
+          {
+            "addressType": "8D8A9A78-3E68-4F73-823E-7FBDD48E2BA0",
+            "country": "string",
+            "state": "string",
+            "postCode": "string",
+            "suburb": "string",
+            "addressLine1": "string",
+            "addressLine2": "string",
+            "isVerified": false,
+            "addressText": "abc"
+          }
+        ]
+      }
+    ]
+  }
+}

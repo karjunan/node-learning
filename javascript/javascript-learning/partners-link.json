@@ -1,0 +1,7 @@
+{
+  "singleClientID": "BA7690CF-0637-4E62-B47A-B8B99A9DE02B",
+
+  "clientType": "partnership",
+
+  "partnersToBeLinked": [{ "id": "23423423", "clientType": "individual" }]
+}

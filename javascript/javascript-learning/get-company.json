@@ -1,0 +1,67 @@
+{
+  "isSuccess": true,
+  "data": {
+    "singleClientId": "BA7690CF-0637-4E62-B47A-B8B99A9DE02B",
+    "legalOrganizationName": "Infosys Pvt ltd",
+    "tradingNames": ["Infosys pvt ltd", "Infosys technology pvt ltd"],
+    "businessIdentifiers": [
+      {
+        "identifierType": "72136C52-2AB4-490D-AADE-C266A1EF45E7",
+        "identifierDescription": "ABN",
+        "identifierValue": "889",
+        "countryOfIssueOfIdentifier": "AUS",
+        "isVerified": false
+      }
+    ],
+    "isGovernmentCompany": false,
+    "gstRegistered": true,
+    "addresses": [
+      {
+        "addressType": "8D8A9A78-3E68-4F73-823E-7FBDD48E2BA0",
+        "country": "string",
+        "state": "string",
+        "postCode": "string",
+        "suburb": "string",
+        "addressLine1": "string",
+        "addressLine2": "string",
+        "isVerified": null,
+        "addressText": null
+      }
+    ],
+    "tenantId": "761EFE10-C553-4841-AD4B-215DA2224A14",
+    "trusts": [
+      {
+        "id": "43533KKEEREER",
+        "legalOrganizationName": "32z client",
+        "clienttype": "company",
+        "businessIdentifiers": [
+          {
+            "identifierType": "ABN",
+            "identifierDescription": "",
+            "identifierValue": "234234ASDSD",
+            "countryOfIssueOfIdentifier": "Aus",
+            "isVerified": null
+          }
+        ],
+        "isGovernmentCompany": false,
+        "gstRegistered": true
+      },
+      {
+        "id": "900234ASDDAS",
+        "legalOrganizationName": "Apple Inc",
+        "clienttype": "company",
+        "businessIdentifiers": [
+          {
+            "identifierType": "ABN",
+            "identifierDescription": "",
+            "identifierValue": "SADSDS12323",
+            "countryOfIssueOfIdentifier": "Aus",
+            "isVerified": null
+          }
+        ],
+        "isGovernmentCompany": false,
+        "gstRegistered": true
+      }
+    ]
+  }
+}
