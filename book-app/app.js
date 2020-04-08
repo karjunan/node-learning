@@ -1,16 +1,17 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
-const bookRouter = express.Router();
 const mongoose = require('mongoose');
+const bodyParser = require('body-Parser');
+const Book = require('./models/bookModel');
 
-const db = mongoose.connect('mongodb://localhost/test')
+const bookRouter = require('./routes/bookRouter')(Book);
 
-bookRouter.route('/books')
-    .get((req,res) => {
-      const response = {'hello' : "this is my response"}
-      res.json(response);
-    })
+const db = mongoose.connect('mongodb://localhost/test');
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 
 app.use('/api', bookRouter);
 
