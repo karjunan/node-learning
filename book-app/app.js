@@ -6,6 +6,7 @@ const bodyParser = require('body-Parser');
 const Book = require('./models/bookModel');
 
 const bookRouter = require('./routes/bookRouter')(Book);
+const loginRouter = require('./routes/loginRouter');
 
 const db = mongoose.connect('mongodb://localhost/test');
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 
 
 app.use('/api', bookRouter);
+app.use('/api', loginRouter.login());
 
 app.get('/', (req, res) => {
   res.send('Welcome to my api !! Coo');
