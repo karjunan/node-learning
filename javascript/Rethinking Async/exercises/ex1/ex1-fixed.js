@@ -37,11 +37,13 @@ function fileReceived(file,text) {
 	// loop through responses in order for rendering
 	for (var i=0; i<files.length; i++) {
 		// response received?
+		console.log(i)
 		if (files[i] in responses) {
 			// response needs to be rendered?
 			if (responses[files[i]] !== true) {
 				output(responses[files[i]]);
 				responses[files[i]] = true;
+				console.log(responses)
 			}
 		}
 		// can't render yet
