@@ -1,0 +1,545 @@
+Node.js for beginners - Callbacks
+Hello, if you haven't checked out part 1 yet then go back and take a look. It's good, promise =)
+
+So far we've covered how to do some basic things in Node.js, now we're going to take a look at callbacks and what makes them so useful.
+
+Why Node.js?
+There are many different programming languages available and they all have different strengths and weaknesses. Being able to compare languages and select the best one for your problem is an important step in building scalable and reliable products. Just like every other language Node.js has its strengths and weaknesses, but first let's take a look at when and why we would want to use Node.js.
+
+Strengths:
+Node.js is great if you need to handle loads of concurrent connections with little overhead. If you're going to be creating an application that needs to deal with thousands of requests then Node.js is definitely a good choice.
+It's JavaScript which means anyone who's ever used JavaScript on the client side can transfer their skill to Node.js. It's also built on Google's V8 JavaScript engine so it's pretty fast compared to with languages.
+If you're using JavaScript on both the client and server side it can make programming easier and quicker. For example if you have to validate some form data you can use the same code for the client and server. It's also makes it super easy to transfer data structures back and forth from and client and server.
+You'll impress your PHP scripting buddies!
+
+Now let's take a look at some of the weaknesses.
+
+Weaknesses:
+It's a new language and developers haven't had the time to create strong well tested modules for it just yet. It's worth noting there is also a lack of good IDEs, example code and support when compared to other, older languages. If you run into a problem you're unlikely to get as many search results and well documented solutions as you would for a problem in say, PHP. Although this is a disadvantage today, as Node.js becomes increasingly more popular amongst developers more resources will be available making it progressively quicker and easier to develop in.
+Code can get easily messy and confusing. To make your Node.js code run well you will need to use a lot of anonymous functions and callbacks (more on this in a bit!). These callbacks get increasingly deeper as your application gets larger resulting in the code being more complicated to read and debug.
+It's not the best number cruncher, but then neither is PHP or Ruby!
+
+It's important to know what Node.js' strengths and weaknesses are when deciding if it best fits your applications requirements, but if your code sucks it's not going to make much difference what language you pick! Before we learn what callbacks are and how to implement them into our code, we should first take a quick look at what blocking and non-blocking means, and how it affects the performance of our code.
+
+Blocking and non-blocking
+Blocking is simply when your code can't execute because something else is preventing it from running. This can happen because your application is waiting on another resource, for example, the CPU, network, memory or disk. To better explain how blocking can occur in your code let's take the following example:
+
+var http = require('http');
+var url = require('url');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    if( url.parse(request.url).pathname == '/wait' ){
+        var startTime = new Date().getTime();
+        while (new Date().getTime() < startTime + 15000);
+        response.write('Thanks for waiting!');
+    }
+    else{
+        response.write('Hello!');
+    }
+
+    response.end();
+}).listen(8080);
+
+console.log('Server started');
+
+Save this code as “blocking.js” and run it with the command “node blocking.js”.
+
+Here we're running a blocking script, a loop that runs for 15 seconds when the user calls '/wait'. Navigate your browser to http://localhost:8080/wait first, then straight after to http://localhost:8080 you should notice that even though the second script shouldn't be running the blocking script, it still hangs. So why does this happen?
+
+Node.js was designed to only use one thread; this makes it behave differently to a language like PHP, which creates a new thread for every new connection. If we're dealing with all our requests within one thread any code that takes up 5 seconds of the CPU's thread to run will stop our other requests for 5 seconds as well. Because we have to wait for our first request to finish before we can proceed; we call this code “blocking” due to our first request effectively “blocking” our second request from running.
+
+So how can we stop this? Well first we need to make our code non-blocking, and do this we need to make use of callbacks.
+
+What are callbacks?
+If you've had any experience with JavaScript before, there's a good chance you've seen callbacks already. The basic idea is that if we have to do something which could take a long time, let's say we're trying to read a large file, we don't want our node.js server waiting around for the file to be read when it could be dealing with other incoming requests. So to deal with this we tell Node.js to do what it has to do in the background and to call a function when it's finished. This way Node.js can carry on dealing with other requests while it's reading the file, making our code non-blocking. When we have multiple things going on at the same time, like we have in our example, we can also call this code asynchronous.
+
+To help visualise how our non-blocking, asynchronous works, take the following example:
+
+You're driving down a narrow lane in your car but you can't get where you want because there's a car stopped in front while the driver is busy on his phone (our blocking code). Before you can continue, you'll have to wait for the driver in front to finish what he is doing.
+
+Now imagine there is a lay-by in this lane, the driver in front can now happily pull over into the lay-by to use his phone, leaving you room to pass and carry on with your journey. When he's finished on his phone, he can carry along the lane, just as he would have before he pulled over. This is similar to how asynchronous code works; it allows multiple processes to happen at the same time, just how multiple cars can use our lane at the same time.
+
+Lets use our new knowledge to create a non-blocking version of what we just did.
+
+First lets put our blocking code in a new file.
+
+var startTime = new Date().getTime();
+while (new Date().getTime() < startTime + 10000);
+
+Save the blocking code as "block.js".
+Now lets create our server.
+
+var http = require('http');
+var url = require('url');
+var cp = require('child_process');
+
+function onRequest(request, response) {
+    var pathname = url.parse(request.url).pathname;
+    if( pathname == '/wait' ){
+        cp.exec('node block.js', myCallback);
+    }
+    else{
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Hello!\n');
+        response.end();
+    }
+
+    console.log('New connection');
+
+    function myCallback(){
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Thanks for waiting!\n');
+        response.end();
+    }
+}
+http.createServer(onRequest).listen(8080);
+console.log('Server started');
+
+Here we're using the "child process" module so we can create a second Node thread allowing us to run our blocking code in the background. As it's in a new thread our main Node thread can continue on happily serving other incoming requests. We call .exec() function of the child process module to start the new thread and run our blocking script on. The .exec() function takes two parameters, the first is our node command to start our blocking script, and the second is our callback function.  When our .exec() command has finished it runs the callback function, myCallback, and prints, 'Thanks for waiting!'.
+
+To test it, save the code above as "nonblocking.js" then run it with the command, "node nonblocking.js".
+
+You should notice that if you navigate to http://localhost:8080/wait and then to http://localhost:8080 we no longer have to wait for our blocking script to finish. Obviously this is a pointless example because our blocking script isn't doing anything worthwhile. So lets look at a slightly more interesting example of a non-blocking script we can create that uses callbacks.
+
+Luckily for us Node.js comes with many non-blocking, asynchronous methods that we can easily implement into our applications. So let's take a look at how to implement a non-blocking file reader into our code:
+
+var http = require('http');
+var fileSystem = require('fs');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    var read_stream = fileSystem.createReadStream('myfile.txt');
+    read_stream.on('data', writeCallback);
+    read_stream.on('close', closeCallback);
+
+    function writeCallback(data){
+        response.write(data);
+    }
+
+    function closeCallback(){
+        response.end();
+    }
+
+}).listen(8080);
+
+console.log('Server started');
+
+Here we're using the file system module that's built into Node.js. We can call the file system's .createReadStream() method to read our file, and then attach a couple of callback functions onto the 'data' and 'close' events. These functions are then executed when the events are fired.
+
+To try it for yourself save our code above as 'fileReader.js', then create a text file with some text output in, and save it as, "myfile.txt". Now you can run it with the command, "node fileReader.js". Navigate to http://localhost:8080 and you should see your file printed to the page.
+
+Conclusion
+Whenever you have a process that could take a long time to execute, you should always ensure that you're dealing with it in a non-blocking way. When implemented right, good use of callbacks and asynchronous code can provide huge improvements to the speed and scalability of your code.
+
+Feel free to add any comments or suggestions you have in the comments section.Node.js for beginners - Callbacks
+Hello, if you haven't checked out part 1 yet then go back and take a look. It's good, promise =)
+
+So far we've covered how to do some basic things in Node.js, now we're going to take a look at callbacks and what makes them so useful.
+
+Why Node.js?
+There are many different programming languages available and they all have different strengths and weaknesses. Being able to compare languages and select the best one for your problem is an important step in building scalable and reliable products. Just like every other language Node.js has its strengths and weaknesses, but first let's take a look at when and why we would want to use Node.js.
+
+Strengths:
+Node.js is great if you need to handle loads of concurrent connections with little overhead. If you're going to be creating an application that needs to deal with thousands of requests then Node.js is definitely a good choice.
+It's JavaScript which means anyone who's ever used JavaScript on the client side can transfer their skill to Node.js. It's also built on Google's V8 JavaScript engine so it's pretty fast compared to with languages.
+If you're using JavaScript on both the client and server side it can make programming easier and quicker. For example if you have to validate some form data you can use the same code for the client and server. It's also makes it super easy to transfer data structures back and forth from and client and server.
+You'll impress your PHP scripting buddies!
+
+Now let's take a look at some of the weaknesses.
+
+Weaknesses:
+It's a new language and developers haven't had the time to create strong well tested modules for it just yet. It's worth noting there is also a lack of good IDEs, example code and support when compared to other, older languages. If you run into a problem you're unlikely to get as many search results and well documented solutions as you would for a problem in say, PHP. Although this is a disadvantage today, as Node.js becomes increasingly more popular amongst developers more resources will be available making it progressively quicker and easier to develop in.
+Code can get easily messy and confusing. To make your Node.js code run well you will need to use a lot of anonymous functions and callbacks (more on this in a bit!). These callbacks get increasingly deeper as your application gets larger resulting in the code being more complicated to read and debug.
+It's not the best number cruncher, but then neither is PHP or Ruby!
+
+It's important to know what Node.js' strengths and weaknesses are when deciding if it best fits your applications requirements, but if your code sucks it's not going to make much difference what language you pick! Before we learn what callbacks are and how to implement them into our code, we should first take a quick look at what blocking and non-blocking means, and how it affects the performance of our code.
+
+Blocking and non-blocking
+Blocking is simply when your code can't execute because something else is preventing it from running. This can happen because your application is waiting on another resource, for example, the CPU, network, memory or disk. To better explain how blocking can occur in your code let's take the following example:
+
+var http = require('http');
+var url = require('url');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    if( url.parse(request.url).pathname == '/wait' ){
+        var startTime = new Date().getTime();
+        while (new Date().getTime() < startTime + 15000);
+        response.write('Thanks for waiting!');
+    }
+    else{
+        response.write('Hello!');
+    }
+
+    response.end();
+}).listen(8080);
+
+console.log('Server started');
+
+Save this code as “blocking.js” and run it with the command “node blocking.js”.
+
+Here we're running a blocking script, a loop that runs for 15 seconds when the user calls '/wait'. Navigate your browser to http://localhost:8080/wait first, then straight after to http://localhost:8080 you should notice that even though the second script shouldn't be running the blocking script, it still hangs. So why does this happen?
+
+Node.js was designed to only use one thread; this makes it behave differently to a language like PHP, which creates a new thread for every new connection. If we're dealing with all our requests within one thread any code that takes up 5 seconds of the CPU's thread to run will stop our other requests for 5 seconds as well. Because we have to wait for our first request to finish before we can proceed; we call this code “blocking” due to our first request effectively “blocking” our second request from running.
+
+So how can we stop this? Well first we need to make our code non-blocking, and do this we need to make use of callbacks.
+
+What are callbacks?
+If you've had any experience with JavaScript before, there's a good chance you've seen callbacks already. The basic idea is that if we have to do something which could take a long time, let's say we're trying to read a large file, we don't want our node.js server waiting around for the file to be read when it could be dealing with other incoming requests. So to deal with this we tell Node.js to do what it has to do in the background and to call a function when it's finished. This way Node.js can carry on dealing with other requests while it's reading the file, making our code non-blocking. When we have multiple things going on at the same time, like we have in our example, we can also call this code asynchronous.
+
+To help visualise how our non-blocking, asynchronous works, take the following example:
+
+You're driving down a narrow lane in your car but you can't get where you want because there's a car stopped in front while the driver is busy on his phone (our blocking code). Before you can continue, you'll have to wait for the driver in front to finish what he is doing.
+
+Now imagine there is a lay-by in this lane, the driver in front can now happily pull over into the lay-by to use his phone, leaving you room to pass and carry on with your journey. When he's finished on his phone, he can carry along the lane, just as he would have before he pulled over. This is similar to how asynchronous code works; it allows multiple processes to happen at the same time, just how multiple cars can use our lane at the same time.
+
+Lets use our new knowledge to create a non-blocking version of what we just did.
+
+First lets put our blocking code in a new file.
+
+var startTime = new Date().getTime();
+while (new Date().getTime() < startTime + 10000);
+
+Save the blocking code as "block.js".
+Now lets create our server.
+
+var http = require('http');
+var url = require('url');
+var cp = require('child_process');
+
+function onRequest(request, response) {
+    var pathname = url.parse(request.url).pathname;
+    if( pathname == '/wait' ){
+        cp.exec('node block.js', myCallback);
+    }
+    else{
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Hello!\n');
+        response.end();
+    }
+
+    console.log('New connection');
+
+    function myCallback(){
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Thanks for waiting!\n');
+        response.end();
+    }
+}
+http.createServer(onRequest).listen(8080);
+console.log('Server started');
+
+Here we're using the "child process" module so we can create a second Node thread allowing us to run our blocking code in the background. As it's in a new thread our main Node thread can continue on happily serving other incoming requests. We call .exec() function of the child process module to start the new thread and run our blocking script on. The .exec() function takes two parameters, the first is our node command to start our blocking script, and the second is our callback function.  When our .exec() command has finished it runs the callback function, myCallback, and prints, 'Thanks for waiting!'.
+
+To test it, save the code above as "nonblocking.js" then run it with the command, "node nonblocking.js".
+
+You should notice that if you navigate to http://localhost:8080/wait and then to http://localhost:8080 we no longer have to wait for our blocking script to finish. Obviously this is a pointless example because our blocking script isn't doing anything worthwhile. So lets look at a slightly more interesting example of a non-blocking script we can create that uses callbacks.
+
+Luckily for us Node.js comes with many non-blocking, asynchronous methods that we can easily implement into our applications. So let's take a look at how to implement a non-blocking file reader into our code:
+
+var http = require('http');
+var fileSystem = require('fs');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    var read_stream = fileSystem.createReadStream('myfile.txt');
+    read_stream.on('data', writeCallback);
+    read_stream.on('close', closeCallback);
+
+    function writeCallback(data){
+        response.write(data);
+    }
+
+    function closeCallback(){
+        response.end();
+    }
+
+}).listen(8080);
+
+console.log('Server started');
+
+Here we're using the file system module that's built into Node.js. We can call the file system's .createReadStream() method to read our file, and then attach a couple of callback functions onto the 'data' and 'close' events. These functions are then executed when the events are fired.
+
+To try it for yourself save our code above as 'fileReader.js', then create a text file with some text output in, and save it as, "myfile.txt". Now you can run it with the command, "node fileReader.js". Navigate to http://localhost:8080 and you should see your file printed to the page.
+
+Conclusion
+Whenever you have a process that could take a long time to execute, you should always ensure that you're dealing with it in a non-blocking way. When implemented right, good use of callbacks and asynchronous code can provide huge improvements to the speed and scalability of your code.
+
+Feel free to add any comments or suggestions you have in the comments section.Node.js for beginners - Callbacks
+Hello, if you haven't checked out part 1 yet then go back and take a look. It's good, promise =)
+
+So far we've covered how to do some basic things in Node.js, now we're going to take a look at callbacks and what makes them so useful.
+
+Why Node.js?
+There are many different programming languages available and they all have different strengths and weaknesses. Being able to compare languages and select the best one for your problem is an important step in building scalable and reliable products. Just like every other language Node.js has its strengths and weaknesses, but first let's take a look at when and why we would want to use Node.js.
+
+Strengths:
+Node.js is great if you need to handle loads of concurrent connections with little overhead. If you're going to be creating an application that needs to deal with thousands of requests then Node.js is definitely a good choice.
+It's JavaScript which means anyone who's ever used JavaScript on the client side can transfer their skill to Node.js. It's also built on Google's V8 JavaScript engine so it's pretty fast compared to with languages.
+If you're using JavaScript on both the client and server side it can make programming easier and quicker. For example if you have to validate some form data you can use the same code for the client and server. It's also makes it super easy to transfer data structures back and forth from and client and server.
+You'll impress your PHP scripting buddies!
+
+Now let's take a look at some of the weaknesses.
+
+Weaknesses:
+It's a new language and developers haven't had the time to create strong well tested modules for it just yet. It's worth noting there is also a lack of good IDEs, example code and support when compared to other, older languages. If you run into a problem you're unlikely to get as many search results and well documented solutions as you would for a problem in say, PHP. Although this is a disadvantage today, as Node.js becomes increasingly more popular amongst developers more resources will be available making it progressively quicker and easier to develop in.
+Code can get easily messy and confusing. To make your Node.js code run well you will need to use a lot of anonymous functions and callbacks (more on this in a bit!). These callbacks get increasingly deeper as your application gets larger resulting in the code being more complicated to read and debug.
+It's not the best number cruncher, but then neither is PHP or Ruby!
+
+It's important to know what Node.js' strengths and weaknesses are when deciding if it best fits your applications requirements, but if your code sucks it's not going to make much difference what language you pick! Before we learn what callbacks are and how to implement them into our code, we should first take a quick look at what blocking and non-blocking means, and how it affects the performance of our code.
+
+Blocking and non-blocking
+Blocking is simply when your code can't execute because something else is preventing it from running. This can happen because your application is waiting on another resource, for example, the CPU, network, memory or disk. To better explain how blocking can occur in your code let's take the following example:
+
+var http = require('http');
+var url = require('url');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    if( url.parse(request.url).pathname == '/wait' ){
+        var startTime = new Date().getTime();
+        while (new Date().getTime() < startTime + 15000);
+        response.write('Thanks for waiting!');
+    }
+    else{
+        response.write('Hello!');
+    }
+
+    response.end();
+}).listen(8080);
+
+console.log('Server started');
+
+Save this code as “blocking.js” and run it with the command “node blocking.js”.
+
+Here we're running a blocking script, a loop that runs for 15 seconds when the user calls '/wait'. Navigate your browser to http://localhost:8080/wait first, then straight after to http://localhost:8080 you should notice that even though the second script shouldn't be running the blocking script, it still hangs. So why does this happen?
+
+Node.js was designed to only use one thread; this makes it behave differently to a language like PHP, which creates a new thread for every new connection. If we're dealing with all our requests within one thread any code that takes up 5 seconds of the CPU's thread to run will stop our other requests for 5 seconds as well. Because we have to wait for our first request to finish before we can proceed; we call this code “blocking” due to our first request effectively “blocking” our second request from running.
+
+So how can we stop this? Well first we need to make our code non-blocking, and do this we need to make use of callbacks.
+
+What are callbacks?
+If you've had any experience with JavaScript before, there's a good chance you've seen callbacks already. The basic idea is that if we have to do something which could take a long time, let's say we're trying to read a large file, we don't want our node.js server waiting around for the file to be read when it could be dealing with other incoming requests. So to deal with this we tell Node.js to do what it has to do in the background and to call a function when it's finished. This way Node.js can carry on dealing with other requests while it's reading the file, making our code non-blocking. When we have multiple things going on at the same time, like we have in our example, we can also call this code asynchronous.
+
+To help visualise how our non-blocking, asynchronous works, take the following example:
+
+You're driving down a narrow lane in your car but you can't get where you want because there's a car stopped in front while the driver is busy on his phone (our blocking code). Before you can continue, you'll have to wait for the driver in front to finish what he is doing.
+
+Now imagine there is a lay-by in this lane, the driver in front can now happily pull over into the lay-by to use his phone, leaving you room to pass and carry on with your journey. When he's finished on his phone, he can carry along the lane, just as he would have before he pulled over. This is similar to how asynchronous code works; it allows multiple processes to happen at the same time, just how multiple cars can use our lane at the same time.
+
+Lets use our new knowledge to create a non-blocking version of what we just did.
+
+First lets put our blocking code in a new file.
+
+var startTime = new Date().getTime();
+while (new Date().getTime() < startTime + 10000);
+
+Save the blocking code as "block.js".
+Now lets create our server.
+
+var http = require('http');
+var url = require('url');
+var cp = require('child_process');
+
+function onRequest(request, response) {
+    var pathname = url.parse(request.url).pathname;
+    if( pathname == '/wait' ){
+        cp.exec('node block.js', myCallback);
+    }
+    else{
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Hello!\n');
+        response.end();
+    }
+
+    console.log('New connection');
+
+    function myCallback(){
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Thanks for waiting!\n');
+        response.end();
+    }
+}
+http.createServer(onRequest).listen(8080);
+console.log('Server started');
+
+Here we're using the "child process" module so we can create a second Node thread allowing us to run our blocking code in the background. As it's in a new thread our main Node thread can continue on happily serving other incoming requests. We call .exec() function of the child process module to start the new thread and run our blocking script on. The .exec() function takes two parameters, the first is our node command to start our blocking script, and the second is our callback function.  When our .exec() command has finished it runs the callback function, myCallback, and prints, 'Thanks for waiting!'.
+
+To test it, save the code above as "nonblocking.js" then run it with the command, "node nonblocking.js".
+
+You should notice that if you navigate to http://localhost:8080/wait and then to http://localhost:8080 we no longer have to wait for our blocking script to finish. Obviously this is a pointless example because our blocking script isn't doing anything worthwhile. So lets look at a slightly more interesting example of a non-blocking script we can create that uses callbacks.
+
+Luckily for us Node.js comes with many non-blocking, asynchronous methods that we can easily implement into our applications. So let's take a look at how to implement a non-blocking file reader into our code:
+
+var http = require('http');
+var fileSystem = require('fs');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    var read_stream = fileSystem.createReadStream('myfile.txt');
+    read_stream.on('data', writeCallback);
+    read_stream.on('close', closeCallback);
+
+    function writeCallback(data){
+        response.write(data);
+    }
+
+    function closeCallback(){
+        response.end();
+    }
+
+}).listen(8080);
+
+console.log('Server started');
+
+Here we're using the file system module that's built into Node.js. We can call the file system's .createReadStream() method to read our file, and then attach a couple of callback functions onto the 'data' and 'close' events. These functions are then executed when the events are fired.
+
+To try it for yourself save our code above as 'fileReader.js', then create a text file with some text output in, and save it as, "myfile.txt". Now you can run it with the command, "node fileReader.js". Navigate to http://localhost:8080 and you should see your file printed to the page.
+
+Conclusion
+Whenever you have a process that could take a long time to execute, you should always ensure that you're dealing with it in a non-blocking way. When implemented right, good use of callbacks and asynchronous code can provide huge improvements to the speed and scalability of your code.
+
+Feel free to add any comments or suggestions you have in the comments section.Node.js for beginners - Callbacks
+Hello, if you haven't checked out part 1 yet then go back and take a look. It's good, promise =)
+
+So far we've covered how to do some basic things in Node.js, now we're going to take a look at callbacks and what makes them so useful.
+
+Why Node.js?
+There are many different programming languages available and they all have different strengths and weaknesses. Being able to compare languages and select the best one for your problem is an important step in building scalable and reliable products. Just like every other language Node.js has its strengths and weaknesses, but first let's take a look at when and why we would want to use Node.js.
+
+Strengths:
+Node.js is great if you need to handle loads of concurrent connections with little overhead. If you're going to be creating an application that needs to deal with thousands of requests then Node.js is definitely a good choice.
+It's JavaScript which means anyone who's ever used JavaScript on the client side can transfer their skill to Node.js. It's also built on Google's V8 JavaScript engine so it's pretty fast compared to with languages.
+If you're using JavaScript on both the client and server side it can make programming easier and quicker. For example if you have to validate some form data you can use the same code for the client and server. It's also makes it super easy to transfer data structures back and forth from and client and server.
+You'll impress your PHP scripting buddies!
+
+Now let's take a look at some of the weaknesses.
+
+Weaknesses:
+It's a new language and developers haven't had the time to create strong well tested modules for it just yet. It's worth noting there is also a lack of good IDEs, example code and support when compared to other, older languages. If you run into a problem you're unlikely to get as many search results and well documented solutions as you would for a problem in say, PHP. Although this is a disadvantage today, as Node.js becomes increasingly more popular amongst developers more resources will be available making it progressively quicker and easier to develop in.
+Code can get easily messy and confusing. To make your Node.js code run well you will need to use a lot of anonymous functions and callbacks (more on this in a bit!). These callbacks get increasingly deeper as your application gets larger resulting in the code being more complicated to read and debug.
+It's not the best number cruncher, but then neither is PHP or Ruby!
+
+It's important to know what Node.js' strengths and weaknesses are when deciding if it best fits your applications requirements, but if your code sucks it's not going to make much difference what language you pick! Before we learn what callbacks are and how to implement them into our code, we should first take a quick look at what blocking and non-blocking means, and how it affects the performance of our code.
+
+Blocking and non-blocking
+Blocking is simply when your code can't execute because something else is preventing it from running. This can happen because your application is waiting on another resource, for example, the CPU, network, memory or disk. To better explain how blocking can occur in your code let's take the following example:
+
+var http = require('http');
+var url = require('url');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    if( url.parse(request.url).pathname == '/wait' ){
+        var startTime = new Date().getTime();
+        while (new Date().getTime() < startTime + 15000);
+        response.write('Thanks for waiting!');
+    }
+    else{
+        response.write('Hello!');
+    }
+
+    response.end();
+}).listen(8080);
+
+console.log('Server started');
+
+Save this code as “blocking.js” and run it with the command “node blocking.js”.
+
+Here we're running a blocking script, a loop that runs for 15 seconds when the user calls '/wait'. Navigate your browser to http://localhost:8080/wait first, then straight after to http://localhost:8080 you should notice that even though the second script shouldn't be running the blocking script, it still hangs. So why does this happen?
+
+Node.js was designed to only use one thread; this makes it behave differently to a language like PHP, which creates a new thread for every new connection. If we're dealing with all our requests within one thread any code that takes up 5 seconds of the CPU's thread to run will stop our other requests for 5 seconds as well. Because we have to wait for our first request to finish before we can proceed; we call this code “blocking” due to our first request effectively “blocking” our second request from running.
+
+So how can we stop this? Well first we need to make our code non-blocking, and do this we need to make use of callbacks.
+
+What are callbacks?
+If you've had any experience with JavaScript before, there's a good chance you've seen callbacks already. The basic idea is that if we have to do something which could take a long time, let's say we're trying to read a large file, we don't want our node.js server waiting around for the file to be read when it could be dealing with other incoming requests. So to deal with this we tell Node.js to do what it has to do in the background and to call a function when it's finished. This way Node.js can carry on dealing with other requests while it's reading the file, making our code non-blocking. When we have multiple things going on at the same time, like we have in our example, we can also call this code asynchronous.
+
+To help visualise how our non-blocking, asynchronous works, take the following example:
+
+You're driving down a narrow lane in your car but you can't get where you want because there's a car stopped in front while the driver is busy on his phone (our blocking code). Before you can continue, you'll have to wait for the driver in front to finish what he is doing.
+
+Now imagine there is a lay-by in this lane, the driver in front can now happily pull over into the lay-by to use his phone, leaving you room to pass and carry on with your journey. When he's finished on his phone, he can carry along the lane, just as he would have before he pulled over. This is similar to how asynchronous code works; it allows multiple processes to happen at the same time, just how multiple cars can use our lane at the same time.
+
+Lets use our new knowledge to create a non-blocking version of what we just did.
+
+First lets put our blocking code in a new file.
+
+var startTime = new Date().getTime();
+while (new Date().getTime() < startTime + 10000);
+
+Save the blocking code as "block.js".
+Now lets create our server.
+
+var http = require('http');
+var url = require('url');
+var cp = require('child_process');
+
+function onRequest(request, response) {
+    var pathname = url.parse(request.url).pathname;
+    if( pathname == '/wait' ){
+        cp.exec('node block.js', myCallback);
+    }
+    else{
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Hello!\n');
+        response.end();
+    }
+
+    console.log('New connection');
+
+    function myCallback(){
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('Thanks for waiting!\n');
+        response.end();
+    }
+}
+http.createServer(onRequest).listen(8080);
+console.log('Server started');
+
+Here we're using the "child process" module so we can create a second Node thread allowing us to run our blocking code in the background. As it's in a new thread our main Node thread can continue on happily serving other incoming requests. We call .exec() function of the child process module to start the new thread and run our blocking script on. The .exec() function takes two parameters, the first is our node command to start our blocking script, and the second is our callback function.  When our .exec() command has finished it runs the callback function, myCallback, and prints, 'Thanks for waiting!'.
+
+To test it, save the code above as "nonblocking.js" then run it with the command, "node nonblocking.js".
+
+You should notice that if you navigate to http://localhost:8080/wait and then to http://localhost:8080 we no longer have to wait for our blocking script to finish. Obviously this is a pointless example because our blocking script isn't doing anything worthwhile. So lets look at a slightly more interesting example of a non-blocking script we can create that uses callbacks.
+
+Luckily for us Node.js comes with many non-blocking, asynchronous methods that we can easily implement into our applications. So let's take a look at how to implement a non-blocking file reader into our code:
+
+var http = require('http');
+var fileSystem = require('fs');
+
+http.createServer(function (request, response) {
+    response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    var read_stream = fileSystem.createReadStream('myfile.txt');
+    read_stream.on('data', writeCallback);
+    read_stream.on('close', closeCallback);
+
+    function writeCallback(data){
+        response.write(data);
+    }
+
+    function closeCallback(){
+        response.end();
+    }
+
+}).listen(8080);
+
+console.log('Server started');
+
+Here we're using the file system module that's built into Node.js. We can call the file system's .createReadStream() method to read our file, and then attach a couple of callback functions onto the 'data' and 'close' events. These functions are then executed when the events are fired.
+
+To try it for yourself save our code above as 'fileReader.js', then create a text file with some text output in, and save it as, "myfile.txt". Now you can run it with the command, "node fileReader.js". Navigate to http://localhost:8080 and you should see your file printed to the page.
+
+Conclusion
+Whenever you have a process that could take a long time to execute, you should always ensure that you're dealing with it in a non-blocking way. When implemented right, good use of callbacks and asynchronous code can provide huge improvements to the speed and scalability of your code.
+
+Feel free to add any comments or suggestions you have in the comments section.
