@@ -11,3 +11,5 @@ nodeGrpcClient/node_modules
 nodeGrpcClient/nodeGrpcClient/node_modules
 type_script/node_modules/
 danielstern-typescript-learning/node_modules
+express-generator/node_modules
+express-generator/myapp/node_modules
