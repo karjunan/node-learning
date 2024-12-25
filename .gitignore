@@ -14,3 +14,6 @@ danielstern-typescript-learning/node_modules
 express-generator/node_modules
 express-generator/myapp/node_modules
 nest-scratch/node_modules/
+websockets/node_modules
+*node_modules/*
+
